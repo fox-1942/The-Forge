@@ -166,13 +166,14 @@ def main():
     binary_declarations, fsl_dependencies = collect_shader_decl(args, fsl_input, platforms, regen, dependencies, [])
 
     if not binary_declarations:
+        print('Not Binary declarations.')
         return 0
 
     if args.verbose:
         print('FSL: Generating {}, from {}'.format([p.name for p in platforms], args.fsl_input))
     
     os.makedirs(args.destination, exist_ok=True)
-
+  
     if args.incremental:
         with open(dependency_filepath, 'w') as deps:
             deps.write(':{}\n\n'.format(os.path.normpath(os.path.abspath(args.fsl_input)).replace(os.sep, '/')))
@@ -215,6 +216,9 @@ def main():
         sys.path.append(reload_server_dir)
         from ReloadServer import generate_reload_server_info
         generate_reload_server_info(args.fsl_input, args.binaryDestination, args.intermediateDestination, args.reloadServerPort, sys.argv[1:])
+      
+    print(exit_code)
+    
     
     return exit_code
 

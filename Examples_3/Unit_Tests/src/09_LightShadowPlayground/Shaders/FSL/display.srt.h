@@ -37,6 +37,4 @@ BEGIN_SRT_SET(PerDraw)
 END_SRT_SET(PerDraw)
 END_SRT(DisplaySrtData)
 
-
-
 #endif /* display_srt_h */

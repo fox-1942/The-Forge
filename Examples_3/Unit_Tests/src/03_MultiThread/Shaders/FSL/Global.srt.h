@@ -34,8 +34,6 @@ STRUCT(ParticleData)
     DATA(uint, mPad0, None);
 };
 
-
-
 // for low end iOS devices, do not use Argument buffers
 BEGIN_SRT_NO_AB(SrtData)
     BEGIN_SRT_SET(Persistent)

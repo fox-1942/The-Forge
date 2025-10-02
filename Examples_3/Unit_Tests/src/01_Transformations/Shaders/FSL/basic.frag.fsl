@@ -28,12 +28,11 @@
 STRUCT(VSOutput)
 {
     DATA(float4, Position, SV_Position);
-    DATA(float4, Color, COLOR);
+    DATA(float4, Color,    COLOR);
 };
 
 ROOT_SIGNATURE(DefaultRootSignature)
-float4 PS_MAIN(VSOutput In)
+float4 PS_MAIN()
 {
-    INIT_MAIN;
-    RETURN(In.Color);
+    return float4(0, 1.0, 1.0, 1.0);
 }

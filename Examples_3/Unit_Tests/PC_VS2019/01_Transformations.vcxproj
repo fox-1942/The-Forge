@@ -28,10 +28,7 @@
   <ItemGroup>
     <FSLShader Include="..\src\01_Transformations\Shaders\FSL\Basic.frag.fsl" />
     <FSLShader Include="..\src\01_Transformations\Shaders\FSL\Basic.vert.fsl" />
-    <FSLShader Include="..\src\01_Transformations\Shaders\FSL\Resources.h.fsl" />
     <FSLShader Include="..\src\01_Transformations\Shaders\FSL\Shaders.list" />
-    <FSLShader Include="..\src\01_Transformations\Shaders\FSL\Skybox.frag.fsl" />
-    <FSLShader Include="..\src\01_Transformations\Shaders\FSL\Skybox.vert.fsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5938554B-1112-4A6D-9CA0-EDEA01CB7F3F}</ProjectGuid>

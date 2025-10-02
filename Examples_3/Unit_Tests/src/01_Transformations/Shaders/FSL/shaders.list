@@ -1,23 +1,19 @@
+// Shared defaults/macros
 #include "../../../../../../Common_3/Graphics/FSL/defaults.h"
 
+// Root signatures (kept as-is)
 #rootsig default.rootsig
 #end
 
 #rootsig compute.rootsig
 #end
 
+// --- Your simple pair ---
+
+#vert basic.vert
+#include "basic.vert.fsl"   // VS_MAIN(VSIn In), uses SV_VertexID via struct
+#end
+
 #frag basic.frag
-#include "Basic.frag.fsl"
-#end
-
-#vert FT_MULTIVIEW basic.vert
-#include "Basic.vert.fsl"
-#end
-
-#frag skybox.frag
-#include "Skybox.frag.fsl"
-#end
-
-#vert FT_MULTIVIEW skybox.vert
-#include "Skybox.vert.fsl"
+#include "basic.frag.fsl"        // PS_MAIN(), returns float4 solid color
 #end

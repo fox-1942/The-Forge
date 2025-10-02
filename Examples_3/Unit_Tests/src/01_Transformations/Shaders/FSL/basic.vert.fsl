@@ -21,62 +21,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+ 
+// Fullscreen VS: no vertex buffers needed
 
-#include "Resources.h.fsl"
-
-STRUCT(VSInput)
+STRUCT(VSIn)
 {
-    DATA(float3, Position1, POSITION);
-    DATA(float3, Normal1, NORMAL);
-    DATA(float3, Position2, TEXCOORD1);
-    DATA(float3, Normal2, TEXCOORD3);
-    DATA(float4, Color1, TEXCOORD0);
-    DATA(float4, Color2, TEXCOORD2);
+    DATA(uint, VertexID, SV_VertexID);
 };
 
-STRUCT(VSOutput)
+STRUCT(VSOut)
 {
     DATA(float4, Position, SV_Position);
-    DATA(float4, Color, COLOR);
 };
 
 ROOT_SIGNATURE(DefaultRootSignature)
-VSOutput VS_MAIN(VSInput In, SV_InstanceID(uint) InstanceID)
+VSOut VS_MAIN(VSIn In)
 {
-    INIT_MAIN;
-    VSOutput Out;
+    VSOut Out;
 
-#if FT_MULTIVIEW
-    float4x4 tempMat = mul(gUniformBlock.mvp[VR_VIEW_ID], gUniformBlock.toWorld[InstanceID]);
-#else
-    float4x4 tempMat = mul(gUniformBlock.mvp, gUniformBlock.toWorld[InstanceID]);
-#endif
+    float2 pos;
+    if (In.VertexID == 0)      pos = float2(-1.0, -1.0);
+    else if (In.VertexID == 1) pos = float2(-1.0,  3.0);
+    else                       pos = float2( 3.0, -1.0);
 
-    // interpolate between two mesh key frames
-    float  InWeight = gUniformBlock.geometry_weight[InstanceID].x;
-    float3 InPosition = lerp(In.Position1, In.Position2, InWeight);
-    float3 InNormal = lerp(In.Normal1, In.Normal2, InWeight);
-    float3 InColor = lerp(In.Color1.xyz, In.Color2.xyz, InWeight);
-
-    Out.Position = mul(tempMat, float4(InPosition, 1.0f));
-
-    float4 normal = normalize(mul(gUniformBlock.toWorld[InstanceID], float4(InNormal, 0.0f))); // Assume uniform scaling
-    float4 pos = mul(gUniformBlock.toWorld[InstanceID], float4(InPosition, 1.0f));
-
-    float lightIntensity = 1.0f;
-    float ambientCoeff = 0.1;
-
-    float3 lightDir;
-
-    if (gUniformBlock.color[InstanceID].w < 0.01) // Special case for Sun, so that it is lit from its top
-        lightDir = float3(0.0f, 1.0f, 0.0f);
-    else
-        lightDir = normalize(gUniformBlock.lightPosition.xyz - pos.xyz);
-
-    float3 baseColor = (gUniformBlock.color[InstanceID].rgb + InColor) / 2.0f;
-    float3 blendedColor = (gUniformBlock.lightColor.rgb * baseColor) * lightIntensity;
-    float3 diffuse = blendedColor * max(dot(normal.xyz, lightDir), 0.0);
-    float3 ambient = baseColor * ambientCoeff;
-    Out.Color = float4(diffuse + ambient, 1.0);
-    RETURN(Out);
+    Out.Position = float4(pos, 0.0, 1.0);
+    return Out;
 }

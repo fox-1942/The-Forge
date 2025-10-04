@@ -5,27 +5,46 @@
 #include "../../../../Common_3/Graphics/FSL/defaults.h"
 #include "../../../../Common_3/Utilities/RingBuffer.h"
 
+#include "../../../../Common_3/Application/Interfaces/IApp.h"
+#include "../../../../Common_3/Application/Interfaces/ICameraController.h"
+#include "../../../../Common_3/Application/Interfaces/IFont.h"
+#include "../../../../Common_3/OS/Interfaces/IInput.h"
+#include "../../../../Common_3/Application/Interfaces/IProfiler.h"
+#include "../../../../Common_3/Application/Interfaces/IScreenshot.h"
+#include "../../../../Common_3/Application/Interfaces/IUI.h"
+#include "../../../../Common_3/Game/Interfaces/IScripting.h"
+#include "../../../../Common_3/Utilities/Interfaces/IFileSystem.h"
+#include "../../../../Common_3/Utilities/Interfaces/ILog.h"
+#include "../../../../Common_3/Utilities/Interfaces/IThread.h"
+#include "../../../../Common_3/Utilities/Interfaces/ITime.h"
+
+#include "../../../../Common_3/Utilities/Math/MathTypes.h"
+#include "../../../../Common_3/Utilities/RingBuffer.h"
+#include "../../../../Common_3/Utilities/Threading/ThreadSystem.h"
+
 class MyApplication: public IApp
 {
-public:
     // But we only need Two sets of resources (one in flight and one being used on CPU)
     const uint32_t gDataBufferCount = 2;
 
-    Queue*       pGraphicsQueue = NULL;
-    UIComponent* pGuiWindow;
-    Renderer* pRenderer = NULL;
-    SwapChain*   pSwapChain = NULL;
-    Shader*      pGraphShader = NULL;
+    Buffer*        triangleBuffer = NULL;
+    Queue*         pGraphicsQueue = NULL;
+    UIComponent*   pGuiWindow;
+    Renderer*      pRenderer = NULL;
+    SwapChain*     pSwapChain = NULL;
+    Shader*        pGraphShader = NULL;
     Pipeline*      pSpherePipeline = NULL;
     DescriptorSet* pDescriptorSetTexture = { NULL };
     DescriptorSet* pDescriptorSetUniforms = { NULL };
     GpuCmdRing     gGraphicsCmdRing = {};
     Semaphore*     pImageAcquiredSemaphore = NULL;
     uint32_t       gFrameIndex = 0;
+    Texture*       texture;
+    Sampler*       psampler;
 
     bool Init() override
-    { 
-         // window and renderer setup
+    {
+        // window and renderer setup
         RendererDesc settings;
         memset(&settings, 0, sizeof(settings));
         initGPUConfiguration(settings.pExtendedSettings);
@@ -57,12 +76,48 @@ public:
         RootSignatureDesc rootDesc = {};
         INIT_RS_DESC(rootDesc, "default.rootsig", "compute.rootsig");
         initRootSignature(pRenderer, &rootDesc);
-        
+
+        TextureLoadDesc textLDesc = {};
+        textLDesc.mContainer = TEXTURE_CONTAINER_DDS;
+        textLDesc.pFileName = "TheForge.tex";
+        textLDesc.ppTexture = &texture;
+        textLDesc.mCreationFlag = TEXTURE_CREATION_FLAG_SRGB;
+        addResource(&textLDesc, NULL);
+
+        SamplerDesc samplerDesc = { FILTER_LINEAR,
+                                    FILTER_LINEAR,
+                                    MIPMAP_MODE_NEAREST,
+                                    ADDRESS_MODE_CLAMP_TO_EDGE,
+                                    ADDRESS_MODE_CLAMP_TO_EDGE,
+                                    ADDRESS_MODE_CLAMP_TO_EDGE };
+
+        addSampler(pRenderer, &samplerDesc, &psampler);
+
+        float trianglePoints[] = { 0.5,  0.5,  1.0, 0.0, 0.0, 1.0, 1.0, 0.0,
+
+                                   0.5,  -0.5, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+
+                                   -0.5, 0.5,  1.0, 0.0, 0.0, 1.0, 1.0, 1.0 };
+
+        size_t         triangleSize = 3 * 8 * sizeof(float);
+        BufferLoadDesc triangleBufferLDesc = {};
+        triangleBufferLDesc.mDesc.mDescriptors = DESCRIPTOR_TYPE_VERTEX_BUFFER;
+        triangleBufferLDesc.mDesc.mMemoryUsage = RESOURCE_MEMORY_USAGE_GPU_ONLY;
+        triangleBufferLDesc.mDesc.mSize = triangleSize;
+        triangleBufferLDesc.mDesc.mStructStride = 8 * sizeof(float);
+        triangleBufferLDesc.pData = trianglePoints;
+        triangleBufferLDesc.ppBuffer = &triangleBuffer;
+        addResource(&triangleBufferLDesc, NULL);
+
         return true;
     }
 
     void Exit()
     {
+        removeResource(triangleBuffer);
+        removeSampler(pRenderer, psampler);
+        removeResource(texture);
+
         exitGpuCmdRing(pRenderer, &gGraphicsCmdRing);
         exitSemaphore(pRenderer, pImageAcquiredSemaphore);
 
@@ -77,10 +132,11 @@ public:
     }
 
     bool Load(ReloadDesc* pReloadDesc)
-    { 
+    {
         if (pReloadDesc->mType & (RELOAD_TYPE_RESIZE | RELOAD_TYPE_RENDERTARGET))
         {
-            if (!addSwapChain()) return false;
+            if (!addSwapChain())
+                return false;
             // (Depth is not used; you can skip addDepth() entirely if desired)
 
             UIComponentDesc gui = {};
@@ -115,7 +171,7 @@ public:
         gp.pColorFormats = &pSwapChain->ppRenderTargets[0]->mFormat;
         gp.mSampleCount = pSwapChain->ppRenderTargets[0]->mSampleCount;
         gp.mSampleQuality = pSwapChain->ppRenderTargets[0]->mSampleQuality;
-    
+
         gp.mDepthStencilFormat = TinyImageFormat_UNDEFINED;
         gp.pDepthState = NULL;
         gp.pVertexLayout = NULL;
@@ -129,26 +185,19 @@ public:
         addPipeline(pRenderer, &desc, &pSpherePipeline);
     }
 
-    void removeShaders()
-    {
-        removeShader(pRenderer, pGraphShader);
-     
-    }
+    void removeShaders() { removeShader(pRenderer, pGraphShader); }
 
-    void removePipelines()
-    {
-        removePipeline(pRenderer, pSpherePipeline);
-    }
+    void removePipelines() { removePipeline(pRenderer, pSpherePipeline); }
 
     void Unload(ReloadDesc* pReloadDesc)
-    { 
+    {
         if (pReloadDesc->mType & RELOAD_TYPE_SHADER)
         {
             removeShaders();
         }
 
         waitQueueIdle(pGraphicsQueue);
-       
+
         if (pReloadDesc->mType & (RELOAD_TYPE_SHADER | RELOAD_TYPE_RENDERTARGET))
         {
             removePipelines();
@@ -162,7 +211,7 @@ public:
     };
 
     void Update(float deltaTime) override { deltaTime; }
-    
+
     void Draw() override
     {
         if ((bool)pSwapChain->mEnableVsync != mSettings.mVSyncEnabled)
@@ -174,6 +223,8 @@ public:
         uint32_t swapchainImageIndex;
         acquireNextImage(pRenderer, pSwapChain, pImageAcquiredSemaphore, NULL, &swapchainImageIndex);
 
+        pSwapChain->mImageCount;
+
         RenderTarget*     pRenderTarget = pSwapChain->ppRenderTargets[swapchainImageIndex];
         GpuCmdRingElement elem = getNextGpuCmdRingElement(&gGraphicsCmdRing, true, 1);
 
@@ -183,7 +234,7 @@ public:
         if (fenceStatus == FENCE_STATUS_INCOMPLETE)
             waitForFences(pRenderer, 1, &elem.pFence);
 
-          resetCmdPool(pRenderer, elem.pCmdPool);
+        resetCmdPool(pRenderer, elem.pCmdPool);
 
         Cmd* cmd = elem.pCmds[0];
         beginCmd(cmd);

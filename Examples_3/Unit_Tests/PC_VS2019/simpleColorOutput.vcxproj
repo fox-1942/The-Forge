@@ -11,27 +11,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\01_Transformations\Shaders\FSL\Global.srt.h" />
+    <ClCompile Include="..\src\simpleColorOutput\simpleColourOutput.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\01_Transformations\Scripts\TestBorderless.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestCenteredWindow.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestFullScreen.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestNonCenteredWindow.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestReloadShader.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestReloadShaderCapture.lua" />
-    <None Include="..\src\simpleWindowExample\GPUCfg\gpu.cfg" />
+    <FSLShader Include="..\src\simpleColorOutput\Shaders\FSL\basic.frag.fsl" />
+    <FSLShader Include="..\src\simpleColorOutput\Shaders\FSL\basic.vert.fsl" />
+    <FSLShader Include="..\src\simpleColorOutput\Shaders\FSL\shaders.list" />
   </ItemGroup>
   <ItemGroup>
-    <FSLShader Include="..\src\simpleWindowExample\Shaders\FSL\basic.frag.fsl" />
-    <FSLShader Include="..\src\simpleWindowExample\Shaders\FSL\basic.vert.fsl" />
-    <FSLShader Include="..\src\simpleWindowExample\Shaders\FSL\shaders.list" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\src\simpleWindowExample\simpleWindowExample.cpp" />
+    <None Include="..\src\simpleColorOutput\GPUCfg\gpu.cfg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{e701b378-f608-407d-8f54-1d30ea6b35d6}</ProjectGuid>
+    <ProjectGuid>{350aba85-5a87-4de1-9e0a-5ca6c6c30baf}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

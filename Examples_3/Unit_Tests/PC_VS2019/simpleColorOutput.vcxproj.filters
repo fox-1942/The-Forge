@@ -17,4 +17,25 @@
       <UniqueIdentifier>{64fe91ff-7aa5-4040-820d-1656c6330538}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\simpleColorOutput\simpleColourOutput.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FSLShader Include="..\src\simpleColorOutput\Shaders\FSL\basic.frag.fsl">
+      <Filter>FSLShaders</Filter>
+    </FSLShader>
+    <FSLShader Include="..\src\simpleColorOutput\Shaders\FSL\basic.vert.fsl">
+      <Filter>FSLShaders</Filter>
+    </FSLShader>
+    <FSLShader Include="..\src\simpleColorOutput\Shaders\FSL\shaders.list">
+      <Filter>FSLShaders</Filter>
+    </FSLShader>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\simpleColorOutput\GPUCfg\gpu.cfg">
+      <Filter>Misc</Filter>
+    </None>
+  </ItemGroup>
 </Project>

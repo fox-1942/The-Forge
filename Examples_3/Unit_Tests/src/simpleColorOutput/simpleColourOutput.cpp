@@ -10,20 +10,15 @@ class MyApplication: public IApp
     // But we only need Two sets of resources (one in flight and one being used on CPU)
     const uint32_t gDataBufferCount = 2;
 
-    Buffer*        triangleBuffer = NULL;
     Queue*         pGraphicsQueue = NULL;
     UIComponent*   pGuiWindow;
     Renderer*      pRenderer = NULL;
     SwapChain*     pSwapChain = NULL;
     Shader*        pGraphShader = NULL;
     Pipeline*      pSpherePipeline = NULL;
-    DescriptorSet* pDescriptorSetTexture = { NULL };
-    DescriptorSet* pDescriptorSetUniforms = { NULL };
     GpuCmdRing     gGraphicsCmdRing = {};
     Semaphore*     pImageAcquiredSemaphore = NULL;
     uint32_t       gFrameIndex = 0;
-    Texture*       texture;
-    Sampler*       psampler;
 
     bool Init() override
     {
@@ -60,47 +55,12 @@ class MyApplication: public IApp
         INIT_RS_DESC(rootDesc, "default.rootsig", "compute.rootsig");
         initRootSignature(pRenderer, &rootDesc);
 
-        TextureLoadDesc textLDesc = {};
-        textLDesc.mContainer = TEXTURE_CONTAINER_DDS;
-        textLDesc.pFileName = "TheForge.tex";
-        textLDesc.ppTexture = &texture;
-        textLDesc.mCreationFlag = TEXTURE_CREATION_FLAG_SRGB;
-        addResource(&textLDesc, NULL);
-
-        SamplerDesc samplerDesc = { FILTER_LINEAR,
-                                    FILTER_LINEAR,
-                                    MIPMAP_MODE_NEAREST,
-                                    ADDRESS_MODE_CLAMP_TO_EDGE,
-                                    ADDRESS_MODE_CLAMP_TO_EDGE,
-                                    ADDRESS_MODE_CLAMP_TO_EDGE };
-
-        addSampler(pRenderer, &samplerDesc, &psampler);
-
-        float trianglePoints[] = { 0.5,  0.5,  1.0, 0.0, 0.0, 1.0, 1.0, 0.0,
-
-                                   0.5,  -0.5, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-
-                                   -0.5, 0.5,  1.0, 0.0, 0.0, 1.0, 1.0, 1.0 };
-
-        size_t         triangleSize = 3 * 8 * sizeof(float);
-        BufferLoadDesc triangleBufferLDesc = {};
-        triangleBufferLDesc.mDesc.mDescriptors = DESCRIPTOR_TYPE_VERTEX_BUFFER;
-        triangleBufferLDesc.mDesc.mMemoryUsage = RESOURCE_MEMORY_USAGE_GPU_ONLY;
-        triangleBufferLDesc.mDesc.mSize = triangleSize;
-        triangleBufferLDesc.mDesc.mStructStride = 8 * sizeof(float);
-        triangleBufferLDesc.pData = trianglePoints;
-        triangleBufferLDesc.ppBuffer = &triangleBuffer;
-        addResource(&triangleBufferLDesc, NULL);
-
+       
         return true;
     }
 
     void Exit()
     {
-        removeResource(triangleBuffer);
-        removeSampler(pRenderer, psampler);
-        removeResource(texture);
-
         exitGpuCmdRing(pRenderer, &gGraphicsCmdRing);
         exitSemaphore(pRenderer, pImageAcquiredSemaphore);
 
@@ -281,12 +241,6 @@ class MyApplication: public IApp
     }
 
     const char* GetName() override { return "name"; }
-
-    void removeDescriptorSets()
-    {
-        removeDescriptorSet(pRenderer, pDescriptorSetUniforms);
-        removeDescriptorSet(pRenderer, pDescriptorSetTexture);
-    }
 
     void addShaders()
     {

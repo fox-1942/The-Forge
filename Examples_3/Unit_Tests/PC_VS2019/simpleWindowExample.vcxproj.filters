@@ -52,7 +52,7 @@
     </FSLShader>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\simpleWindowExample\01_Transformations.cpp">
+    <ClCompile Include="..\src\simpleWindowExample\simpleWindowExample.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

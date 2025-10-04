@@ -1,0 +1,17 @@
+// Shared defaults/macros
+#include "../../../../../../Common_3/Graphics/FSL/defaults.h"
+
+// Root signatures (kept as-is)
+#rootsig default.rootsig
+#end
+
+#rootsig compute.rootsig
+#end
+
+#vert basic.vert
+#include "basic.vert.fsl"
+#end
+
+#frag basic.frag
+#include "basic.frag.fsl"
+#end

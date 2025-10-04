@@ -10,26 +10,6 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\src\01_Transformations\01_Transformations.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\src\01_Transformations\Shaders\FSL\Global.srt.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\src\01_Transformations\GPUCfg\gpu.cfg" />
-    <None Include="..\src\01_Transformations\Scripts\TestBorderless.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestCenteredWindow.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestFullScreen.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestNonCenteredWindow.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestReloadShader.lua" />
-    <None Include="..\src\01_Transformations\Scripts\TestReloadShaderCapture.lua" />
-  </ItemGroup>
-  <ItemGroup>
-    <FSLShader Include="..\src\01_Transformations\Shaders\FSL\Basic.frag.fsl" />
-    <FSLShader Include="..\src\01_Transformations\Shaders\FSL\Basic.vert.fsl" />
-    <FSLShader Include="..\src\01_Transformations\Shaders\FSL\Shaders.list" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5938554B-1112-4A6D-9CA0-EDEA01CB7F3F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

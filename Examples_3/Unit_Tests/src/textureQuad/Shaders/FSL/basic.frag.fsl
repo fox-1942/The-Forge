@@ -1,0 +1,18 @@
+#include "Resources.h.fsl"
+
+STRUCT(VSOut)
+{
+    DATA(float4, Position, SV_Position);
+    DATA(float2, TexCoord, TEXCOORD);
+};
+
+ROOT_SIGNATURE(DefaultRootSignature)
+float4 PS_MAIN(VSOut In)
+{
+  INIT_MAIN;
+  float4 Out;
+  
+  Out = SampleTex2D(Texture, uSampler0, In.TexCoord);
+
+  RETURN(Out);
+}

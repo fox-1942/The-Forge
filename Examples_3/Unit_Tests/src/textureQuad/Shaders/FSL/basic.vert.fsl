@@ -1,0 +1,25 @@
+#include "Resources.h.fsl"
+
+STRUCT(VSIn)
+{
+    DATA(float4, Position, POSITION);
+    DATA(float3, Normal, NORMAL);
+    DATA(float2, TexCoord, TEXCOORD0);
+};
+
+STRUCT(VSOut)
+{
+    DATA(float4, Position, SV_Position);
+    DATA(float2, TexCoord, TEXCOORD);
+};
+
+ROOT_SIGNATURE(DefaultRootSignature)
+VSOut VS_MAIN(VSIn In)
+{
+    INIT_MAIN;
+    VSOut Out;
+
+    Out.Position = mul(UniformData.proj, mul(UniformData.view, In.Position));
+	Out.TexCoord = In.TexCoord;
+    RETURN(Out);
+}

@@ -2,7 +2,7 @@
 
 STRUCT(VSIn)
 {
-    DATA(float4, Position, POSITION);
+    DATA(float3, Position, POSITION);
     DATA(float3, Normal, NORMAL);
     DATA(float2, TexCoord, TEXCOORD0);
 };
@@ -18,8 +18,8 @@ VSOut VS_MAIN(VSIn In)
 {
     INIT_MAIN;
     VSOut Out;
-
-    Out.Position = mul(UniformData.proj, mul(UniformData.view, In.Position));
-	Out.TexCoord = In.TexCoord;
+    float4 pos = float4(In.Position, 1.0);
+    Out.Position = mul(mul(pos, UniformData.view), UniformData.proj);
+    Out.TexCoord = In.TexCoord;
     RETURN(Out);
 }

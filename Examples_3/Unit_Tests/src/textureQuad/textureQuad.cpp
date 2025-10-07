@@ -15,31 +15,34 @@ upload bytes into buffers → updateResource / map+memcpy
 */
 
 
-struct UniformBlock
+struct UniformData
 {
-    CameraMatrix mProjectView;
-    CameraMatrix mSkyProjectView;
+    CameraMatrix view;
+    CameraMatrix proj;
 } gUniformData;
 
 const uint32_t gDataBufferCount = 2;
 
 Buffer*            triangleBuffer = NULL;
+Buffer*            pUniformBuffers[gDataBufferCount] = { NULL };
+
+Pipeline*      pQuadPipeline = NULL;
+DescriptorSet* pDescriptorSetTexture = { NULL };
+DescriptorSet* pDescriptorSetUniforms = { NULL };
+
 Queue*             pGraphicsQueue = NULL;
 UIComponent*       pGuiWindow;
 Renderer*          pRenderer = NULL;
 SwapChain*         pSwapChain = NULL;
 Shader*            pQuadShader = NULL;
-Pipeline*          pQuadPipeline = NULL;
-DescriptorSet*     pDescriptorSetTexture = { NULL };
-DescriptorSet*     pDescriptorSetUniforms = { NULL };
+
 GpuCmdRing         gGraphicsCmdRing = {};
 Semaphore*         pImageAcquiredSemaphore = NULL;
 uint32_t           gFrameIndex = 0;
 Texture*           texture;
 Sampler*           psampler;
 ICameraController* pCameraController = NULL;
-Buffer*            pQuadVertexBuffer = NULL;
-Buffer*            pUniformBuffers[gDataBufferCount] = { NULL };
+
 
 class MyApplication: public IApp
 {
@@ -80,7 +83,7 @@ class MyApplication: public IApp
 
         TextureLoadDesc textLDesc = {};
         textLDesc.mContainer = TEXTURE_CONTAINER_DDS;
-        textLDesc.pFileName = "rect.tex";
+        textLDesc.pFileName = "Skybox_bottom4.tex";
         textLDesc.ppTexture = &texture;
         textLDesc.mCreationFlag = TEXTURE_CREATION_FLAG_SRGB;
         addResource(&textLDesc, NULL);
@@ -88,19 +91,39 @@ class MyApplication: public IApp
         SamplerDesc samplerDesc = { FILTER_LINEAR,
                                     FILTER_LINEAR,
                                     MIPMAP_MODE_NEAREST,
-                                    ADDRESS_MODE_CLAMP_TO_EDGE,
-                                    ADDRESS_MODE_CLAMP_TO_EDGE,
-                                    ADDRESS_MODE_CLAMP_TO_EDGE };
+                                    ADDRESS_MODE_CLAMP_TO_BORDER,
+                                    ADDRESS_MODE_CLAMP_TO_BORDER,
+                                    ADDRESS_MODE_CLAMP_TO_BORDER };
 
         addSampler(pRenderer, &samplerDesc, &psampler);
 
-        float trianglePoints[] = { 0.5,  0.5,  1.0, 0.0, 0.0, 1.0, 1.0, 0.0,
+        float trianglePoints[] = {
+            +0.5f, +0.5f, +1.0f, // Vertex Top Right
+            0.0f,  0.0f,  -1.0f, // Normal
+            1.0f,  0.0f,         // TextureCoord
 
-                                   0.5,  -0.5, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+            +0.5f, -0.5f, +1.0f, // Vertex Bottom Right
+            0.0f,  0.0f,  -1.0f, // Normal
+            1.0f,  1.0f,         // TextureCoord
 
-                                   -0.5, 0.5,  1.0, 0.0, 0.0, 1.0, 1.0, 1.0 };
+            -0.5f, +0.5f, +1.0f, // Vertex Top Left
+            0.0f,  0.0f,  -1.0f, // Normal
+            0.0f,  0.0f,         // TextureCoord
 
-        size_t         triangleSize = 3 * 8 * sizeof(float);
+            -0.5f, +0.5f, +1.0f, // Vertex Top Left
+            0.0f,  0.0f,  -1.0f, // Normal
+            0.0f,  0.0f,         // TextureCoord
+
+            +0.5f, -0.5f, +1.0f, // Vertex Bottom Right
+            0.0f,  0.0f,  -1.0f, // Normal
+            1.0f,  1.0f,         // TextureCoord
+
+            -0.5f, -0.5f, +1.0f, // Vertex Bottom Left
+            0.0f,  0.0f,  -1.0f, // Normal
+            0.0f,  1.0f,         // TextureCoord
+        };
+
+        size_t         triangleSize = 6 * 8 * sizeof(float);
         BufferLoadDesc triangleBufferLDesc = {};
         triangleBufferLDesc.mDesc.mDescriptors = DESCRIPTOR_TYPE_VERTEX_BUFFER;
         triangleBufferLDesc.mDesc.mMemoryUsage = RESOURCE_MEMORY_USAGE_GPU_ONLY;
@@ -115,17 +138,20 @@ class MyApplication: public IApp
         ubDesc.mDesc.mMemoryUsage = RESOURCE_MEMORY_USAGE_CPU_TO_GPU;
         ubDesc.mDesc.mFlags = BUFFER_CREATION_FLAG_PERSISTENT_MAP_BIT;
         ubDesc.pData = NULL;
+
+
         for (uint32_t i = 0; i < gDataBufferCount; ++i)
         {
             ubDesc.mDesc.pName = "UniformBuffer";
-            ubDesc.mDesc.mSize = sizeof(UniformBlock);
+            ubDesc.mDesc.mSize = sizeof(UniformData);
             ubDesc.ppBuffer = &pUniformBuffers[i];
             addResource(&ubDesc, NULL);
         }
 
-        CameraMotionParameters cmp{ 40.0f, 30.0f, 200.0f };
-        vec3                   camPos{ 0.0f, 0.0f, -1.0f };
+        CameraMotionParameters cmp{ 160.0f, 600.0f, 200.0f };
+        vec3                   camPos{ 48.0f, 48.0f, 20.0f };
         vec3                   lookAt{ vec3(0) };
+
 
         pCameraController = initFpsCameraController(camPos, lookAt);
 
@@ -136,9 +162,8 @@ class MyApplication: public IApp
 
     void Exit()
     {
-        removeResource(triangleBuffer);
+
         removeSampler(pRenderer, psampler);
-        removeResource(texture);
 
         exitCameraController(pCameraController);
 
@@ -222,8 +247,7 @@ class MyApplication: public IApp
         desc.mGraphicsDesc.pVertexLayout = &vertexLayout;
 
         // No descriptors used → empty pipeline layout
-        PIPELINE_LAYOUT_DESC(desc, SRT_LAYOUT_DESC(SrtData, Persistent), SRT_LAYOUT_DESC(SrtData, PerFrame), NULL,
-                             SRT_LAYOUT_DESC(SrtData, PerDraw));
+        PIPELINE_LAYOUT_DESC(desc, SRT_LAYOUT_DESC(SrtData, Persistent), SRT_LAYOUT_DESC(SrtData, PerFrame), NULL, NULL);
 
         GraphicsPipelineDesc& gp = desc.mGraphicsDesc;
 
@@ -253,6 +277,7 @@ class MyApplication: public IApp
         if (pReloadDesc->mType & RELOAD_TYPE_SHADER)
         {
             removeShaders();
+            removeDescriptorSets();
         }
 
         waitQueueIdle(pGraphicsQueue);
@@ -260,6 +285,14 @@ class MyApplication: public IApp
         if (pReloadDesc->mType & (RELOAD_TYPE_SHADER | RELOAD_TYPE_RENDERTARGET))
         {
             removePipelines();
+            removeResource(texture);
+            removeResource(triangleBuffer);
+          
+            for (uint32_t i = 0; i < gDataBufferCount; ++i)
+            {
+                removeResource(pUniformBuffers[i]);
+            }
+
         }
 
         if (pReloadDesc->mType & (RELOAD_TYPE_RESIZE | RELOAD_TYPE_RENDERTARGET))
@@ -280,10 +313,18 @@ class MyApplication: public IApp
         const float  horizontal_fov = PI / 2.0f;
         CameraMatrix projMat = CameraMatrix::perspectiveReverseZ(horizontal_fov, aspectInverse, 0.1f, 1000.0f);
       
-        gUniformData.mProjectView = projMat * viewMat;
+        gUniformData.view = viewMat;
+        gUniformData.proj = projMat;
+
 
         viewMat.setTranslation(vec3(0));
         
+    }
+
+    void removeDescriptorSets()
+    {
+        removeDescriptorSet(pRenderer, pDescriptorSetUniforms);
+        removeDescriptorSet(pRenderer, pDescriptorSetTexture);
     }
 
     void Draw() override
@@ -346,7 +387,7 @@ class MyApplication: public IApp
 
                 const uint32_t VbStride = sizeof(float) * 8;
                 cmdBindVertexBuffer(cmd, 1, &triangleBuffer, &VbStride, NULL);
-                cmdDraw(cmd, 3, 0);
+                cmdDraw(cmd, 6, 0);
             }
        
         // Transition back to present
@@ -387,12 +428,6 @@ class MyApplication: public IApp
 
     const char* GetName() override { return "name"; }
 
-    void removeDescriptorSets()
-    {
-        removeDescriptorSet(pRenderer, pDescriptorSetUniforms);
-        removeDescriptorSet(pRenderer, pDescriptorSetTexture);
-    }
-
     void addShaders()
     {
         ShaderLoadDesc graphShader = {};
@@ -424,7 +459,7 @@ class MyApplication: public IApp
         params[0].ppTextures = &texture;
         params[1].mIndex = SRT_RES_IDX(SrtData, Persistent, uSampler0);
         params[1].ppSamplers = &psampler;
-        updateDescriptorSet(pRenderer, 0, pDescriptorSetTexture, 1, params);
+        updateDescriptorSet(pRenderer, 0, pDescriptorSetTexture, 2, params);
        
         for (uint32_t i = 0; i < gDataBufferCount; ++i)
         {

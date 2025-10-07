@@ -14,7 +14,7 @@ class MyApplication: public IApp
     UIComponent*   pGuiWindow;
     Renderer*      pRenderer = NULL;
     SwapChain*     pSwapChain = NULL;
-    Shader*        pGraphShader = NULL;
+    Shader*        pQuadShader = NULL;
     Pipeline*      pSpherePipeline = NULL;
     GpuCmdRing     gGraphicsCmdRing = {};
     Semaphore*     pImageAcquiredSemaphore = NULL;
@@ -123,12 +123,12 @@ class MyApplication: public IApp
         rast.mCullMode = CULL_MODE_NONE;
         gp.pRasterizerState = &rast;
 
-        gp.pShaderProgram = pGraphShader;
+        gp.pShaderProgram = pQuadShader;
 
         addPipeline(pRenderer, &desc, &pSpherePipeline);
     }
 
-    void removeShaders() { removeShader(pRenderer, pGraphShader); }
+    void removeShaders() { removeShader(pRenderer, pQuadShader); }
 
     void removePipelines() { removePipeline(pRenderer, pSpherePipeline); }
 
@@ -247,7 +247,7 @@ class MyApplication: public IApp
         ShaderLoadDesc graphShader = {};
         graphShader.mVert.pFileName = "basic.vert";
         graphShader.mFrag.pFileName = "basic.frag";
-        addShader(pRenderer, &graphShader, &pGraphShader);
+        addShader(pRenderer, &graphShader, &pQuadShader);
     }
 
     bool addSwapChain()

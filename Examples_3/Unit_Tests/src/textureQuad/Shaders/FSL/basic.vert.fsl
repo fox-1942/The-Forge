@@ -19,7 +19,7 @@ VSOut VS_MAIN(VSIn In)
     INIT_MAIN;
     VSOut Out;
     float4 pos = float4(In.Position, 1.0);
-    Out.Position = mul(mul(pos, UniformData.view), UniformData.proj);
+    Out.Position = mul(mul( UniformData.proj, UniformData.view), pos);
     Out.TexCoord = In.TexCoord;
     RETURN(Out);
 }

@@ -13,6 +13,5 @@ float4 PS_MAIN(VSOut In)
   float4 Out;
   
   Out = SampleTex2D(Texture, uSampler0, In.TexCoord);
-
   RETURN(Out);
 }

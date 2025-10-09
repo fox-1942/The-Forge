@@ -83,7 +83,7 @@ class MyApplication: public IApp
 
         TextureLoadDesc textLDesc = {};
         textLDesc.mContainer = TEXTURE_CONTAINER_DDS;
-        textLDesc.pFileName = "Skybox_bottom4.tex";
+        textLDesc.pFileName = "TheForge.tex";
         textLDesc.ppTexture = &texture;
         textLDesc.mCreationFlag = TEXTURE_CREATION_FLAG_SRGB;
         addResource(&textLDesc, NULL);
@@ -148,10 +148,11 @@ class MyApplication: public IApp
             addResource(&ubDesc, NULL);
         }
 
-        CameraMotionParameters cmp{ 160.0f, 600.0f, 200.0f };
-        vec3                   camPos{ 48.0f, 48.0f, 20.0f };
-        vec3                   lookAt{ vec3(0) };
-
+        waitForAllResourceLoads();
+       
+        CameraMotionParameters cmp{ 40.0f, 30.0f, 200.0f };
+        vec3                   camPos{ 0.0f, 0.0f, -1.0f };
+        vec3                   lookAt{ 0.0f, 0.0f, 0.0f };
 
         pCameraController = initFpsCameraController(camPos, lookAt);
 
@@ -304,7 +305,6 @@ class MyApplication: public IApp
 
     void Update(float deltaTime) override
     {
-        
         pCameraController->update(deltaTime);
 
         CameraMatrix viewMat = pCameraController->getViewMatrix();

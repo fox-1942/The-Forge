@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.33214.272
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35208.52
 MinimumVisualStudioVersion = 16.0.0.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{21A6980D-04AA-430D-BE3D-74F151226C8B}"
 EndProject
@@ -83,6 +83,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextureQuad", "TextureQuad.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "15a_VisibilityBufferOIT", "15a_VisibilityBufferOIT.vcxproj", "{610C39FA-F02B-4237-BA8C-4EED56FA8D9F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Visibility_Buffer2", "..\..\Visibility_Buffer2\PC_VS2019\Visibility_Buffer2.vcxproj", "{5938554B-1112-4A6D-9CA0-EDEA01CB7F3F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Visibility_Buffer", "..\..\Visibility_Buffer\PC_VS2019\Visibility_Buffer.vcxproj", "{31927C32-542E-435F-99D3-33DE3E964A5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -161,6 +165,14 @@ Global
 		{610C39FA-F02B-4237-BA8C-4EED56FA8D9F}.Debug|x64.Build.0 = Debug|x64
 		{610C39FA-F02B-4237-BA8C-4EED56FA8D9F}.Release|x64.ActiveCfg = Release|x64
 		{610C39FA-F02B-4237-BA8C-4EED56FA8D9F}.Release|x64.Build.0 = Release|x64
+		{5938554B-1112-4A6D-9CA0-EDEA01CB7F3F}.Debug|x64.ActiveCfg = Debug|x64
+		{5938554B-1112-4A6D-9CA0-EDEA01CB7F3F}.Debug|x64.Build.0 = Debug|x64
+		{5938554B-1112-4A6D-9CA0-EDEA01CB7F3F}.Release|x64.ActiveCfg = Release|x64
+		{5938554B-1112-4A6D-9CA0-EDEA01CB7F3F}.Release|x64.Build.0 = Release|x64
+		{31927C32-542E-435F-99D3-33DE3E964A5C}.Debug|x64.ActiveCfg = Debug|x64
+		{31927C32-542E-435F-99D3-33DE3E964A5C}.Debug|x64.Build.0 = Debug|x64
+		{31927C32-542E-435F-99D3-33DE3E964A5C}.Release|x64.ActiveCfg = Release|x64
+		{31927C32-542E-435F-99D3-33DE3E964A5C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -182,6 +194,8 @@ Global
 		{350ABA85-5A87-4DE1-9E0A-5CA6C6C30BAF} = {6CF62059-3AC3-43CD-A29E-2F1E01EA4115}
 		{0AA95F78-1674-450C-AA2D-9C590095D839} = {6CF62059-3AC3-43CD-A29E-2F1E01EA4115}
 		{610C39FA-F02B-4237-BA8C-4EED56FA8D9F} = {6CF62059-3AC3-43CD-A29E-2F1E01EA4115}
+		{5938554B-1112-4A6D-9CA0-EDEA01CB7F3F} = {6CF62059-3AC3-43CD-A29E-2F1E01EA4115}
+		{31927C32-542E-435F-99D3-33DE3E964A5C} = {6CF62059-3AC3-43CD-A29E-2F1E01EA4115}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {948F21A0-5B36-35C9-B219-88B1DAC0D0C2}

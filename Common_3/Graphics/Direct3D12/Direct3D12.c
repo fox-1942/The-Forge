@@ -2304,8 +2304,8 @@ static bool SelectBestGpu(Renderer* pRenderer, const RendererDesc* pDesc, D3D_FE
     bool gpuSupported = util_check_is_gpu_supported(&gpuDesc[gpuIndex]);
     if (!gpuSupported)
     {
-        LOGF(eERROR, "Failed to Init Renderer: %s", getUnsupportedGPUMsg());
-        return false;
+      //  LOGF(eERROR, "Failed to Init Renderer: %s", getUnsupportedGPUMsg());
+       // return false;
     }
 
     // Get the latest and greatest feature level gpu
@@ -2316,7 +2316,7 @@ static bool SelectBestGpu(Renderer* pRenderer, const RendererDesc* pDesc, D3D_FE
     bool driverValid = checkDriverRejectionSettings(&gpuDesc[gpuIndex]);
     if (!driverValid)
     {
-        return false;
+       // return false;
     }
 
     // Print selected GPU information

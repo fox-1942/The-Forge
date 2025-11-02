@@ -363,7 +363,8 @@ float4 PS_MAIN( VSOutput In, SV_SampleIndex(uint) i )
 	if (nodeIdx != OIT_HEAD_INVALID)
 	{
 		uint count = 0; 
-		NodeFinalOIT fragments[OIT_MAX_FRAG_COUNT];
+
+		NodeFinalOIT fragments[OIT_MAX_FRAG_COUNT];  
 
 		// Accumulate transparent pixel color data
 		LOOP for (uint loopIteration = 0;
@@ -420,10 +421,11 @@ float4 PS_MAIN( VSOutput In, SV_SampleIndex(uint) i )
 			}
 
 			// Blending
-			for (uint l = 0; l < count; ++l)
+			for (uint l = 0; l < 2; ++l)
 			{
 				OutColor = lerp(OutColor, fragments[l].color, fragments[l].alpha);
 				transAlpha = saturate(transAlpha * (1.f - fragments[l].alpha) + fragments[l].alpha);
+			
 			}
 			
 #if defined(ENABLED_GODRAY)
